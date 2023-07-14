@@ -1,0 +1,34 @@
+{
+    "name": "pickleboxer/pscriticalcss",
+    "description": "Basic PrestaShop Module",
+    "authors": [
+        {
+            "name": "PickleBoxer",
+            "email": "matic.vertacnik@icloud.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "PickleBoxer\\PsCriticalCss\\": "src/"
+        },
+        "classmap": [
+            "pscriticalcss.php",
+            "controllers",
+            "classes"
+        ],
+        "exclude-from-classmap": []
+    },
+    "config": {
+        "preferred-install": "dist",
+        "prepend-autoloader": false
+    },
+    "type": "prestashop-module",
+    "author": "PickleBoxer",
+    "license": "AFL-3.0",
+    "require-dev": {
+        "prestashop/php-dev-tools": "^4.3"
+    }
+}
