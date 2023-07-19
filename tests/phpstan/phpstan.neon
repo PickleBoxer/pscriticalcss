@@ -4,7 +4,7 @@ includes:
 parameters:
   paths:
     # From PHPStan 0.12, paths to check are relative to the neon file
-    - ../../blockwishlist.php
+    - ../../pscriticalcss.php
     - ../../classes/
     - ../../controllers/
     - ../../src/
