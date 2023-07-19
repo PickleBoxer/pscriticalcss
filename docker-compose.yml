@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  php:
+    image: phpdockerio/php74-cli
+    volumes:
+      - ./:/var/www/html/modules/pscriticalcss
+    working_dir: /var/www/html/modules/pscriticalcss
+    environment:
+      _PS_ROOT_DIR_: /var/www/html
+  node:
+    image: node:13.1
+    volumes:
+      - ./:/var/www/html/modules/pscriticalcss
+    working_dir: /var/www/html/modules/pscriticalcss
+    environment:
+      PATH: /var/www/html/_dev/node_modules/.bin/:$PATH
