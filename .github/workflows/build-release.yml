@@ -17,6 +17,12 @@ jobs:
         with:
           paths: node_modules
 
+      - name: Clean-up node_modules directory
+        run: sudo rm -rf node_modules
+
+      - name: Clean-up .ddev directory
+        run: sudo rm -rf .ddev
+
       - name: Prepare auto-index tool
         run: composer global require prestashop/autoindex
 

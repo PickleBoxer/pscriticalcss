@@ -32,11 +32,8 @@
         "prestashop/php-dev-tools": "^4.3"
     },
     "scripts": {
-        "fix-php-cs": "@php vendor/bin/php-cs-fixer fix [--dry-run]",
-        "fix-header-stamp": "@php vendor/bin/header-stamp --license=vendor/prestashop/header-stamp/assets/afl.txt --exclude=.github,.ddev,node_modules,vendor,tests,_dev,composer.json --dry-run",
-        "fix-dry-run": [
-            "fix-php-cs",
-            "fix-header-stamp"
-        ]
+        "auto-index": "php vendor/bin/autoindex prestashop:add:index --exclude=.github,.ddev,node_modules,vendor,tests,_dev",
+        "fix-php-cs": "php vendor/bin/php-cs-fixer fix --dry-run",
+        "fix-header-stamp": "php vendor/bin/header-stamp --license=vendor/prestashop/header-stamp/assets/afl.txt --exclude=.github,.ddev,node_modules,vendor,tests,_dev,composer.json --dry-run"
     }
 }
