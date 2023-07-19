@@ -17,9 +17,14 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+
+declare(strict_types=1);
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+
+require_once __DIR__.'/vendor/autoload.php';
 
 class Pscriticalcss extends Module
 {
@@ -171,9 +176,9 @@ class Pscriticalcss extends Module
     protected function getConfigFormValues()
     {
         return [
-            'PSCRITICALCSS_LIVE_MODE' => Configuration::get('PSCRITICALCSS_LIVE_MODE', true),
-            'PSCRITICALCSS_ACCOUNT_EMAIL' => Configuration::get('PSCRITICALCSS_ACCOUNT_EMAIL', 'contact@prestashop.com'),
-            'PSCRITICALCSS_ACCOUNT_PASSWORD' => Configuration::get('PSCRITICALCSS_ACCOUNT_PASSWORD', null),
+            'PSCRITICALCSS_LIVE_MODE' => Configuration::get('PSCRITICALCSS_LIVE_MODE'),
+            'PSCRITICALCSS_ACCOUNT_EMAIL' => Configuration::get('PSCRITICALCSS_ACCOUNT_EMAIL'),
+            'PSCRITICALCSS_ACCOUNT_PASSWORD' => Configuration::get('PSCRITICALCSS_ACCOUNT_PASSWORD'),
         ];
     }
 
