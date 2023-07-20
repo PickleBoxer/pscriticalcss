@@ -1,16 +1,34 @@
 <?php
+/**
+ * Copyright since 2007 PrestaShop SA and Contributors
+ * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License version 3.0
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/AFL-3.0
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * @author    PrestaShop SA and Contributors <contact@prestashop.com>
+ * @copyright Since 2007 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
+ */
 
 declare(strict_types=1);
 
 namespace PickleBoxer\PsCriticalCss;
 
-use Masterminds\HTML5;
-use Symfony\Component\Filesystem\Filesystem;
 use CSSFromHTMLExtractor\CssFromHTMLExtractor;
+use Masterminds\HTML5;
 use PickleBoxer\PsCriticalCss\Css\CssMinifier;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * The CriticalCss class is responsible for processing raw HTML content and extracting the critical CSS from it.
+ * The CriticalCss class is responsible for processing raw HTML content and extracting the critical CSS for above-the-fold content.
  */
 class CriticalCss
 {
@@ -19,7 +37,7 @@ class CriticalCss
      *
      * @var string
      */
-    private $cacheDir = _PS_THEME_DIR_ . 'assets/cache/';
+    private $cacheDir;
 
     /**
      * The Symfony filesystem object.
@@ -28,9 +46,16 @@ class CriticalCss
      */
     private $filesystem;
 
-    public function __construct()
+    /**
+     * Creates a new CriticalCss object.
+     *
+     * @param string $cacheDir the path to the cache directory
+     * @param Filesystem $filesystem the Symfony filesystem object
+     */
+    public function __construct(string $cacheDir, Filesystem $filesystem)
     {
-        $this->filesystem = new Filesystem();
+        $this->cacheDir = $cacheDir;
+        $this->filesystem = $filesystem;
 
         // Create the cache directory if it does not exist
         if (!$this->filesystem->exists($this->cacheDir)) {
@@ -38,36 +63,44 @@ class CriticalCss
         }
     }
 
+    /**
+     * Processes the raw HTML content and extracts the critical CSS for above-the-fold content.
+     *
+     * @param string $rawHtml the raw HTML content that needs to be processed
+     * @param string $controllerName the name of the controller
+     *
+     * @return string returns the extracted critical CSS content if successful, otherwise returns the original HTML content
+     */
     public function process(string $rawHtml, string $controllerName): string
     {
-        // Create a new HTML5 object
-        $html5 = new HTML5();
-
-        // Load the raw HTML content into the HTML5 document
-        $document = $html5->loadHTML($rawHtml);
-
-        // Get the URLs of all stylesheets in the HTML document
-        $files = $this->getStylesheetUrls($document);
-
-        // Generate a unique identifier for the extracted CSS file
-        $filenameIdentifier = $this->getFileNameIdentifierFromList($files);
-
-        // Get the path to the extracted CSS file
-        $filePath = $this->cacheDir . $controllerName . '-' . $filenameIdentifier . '.css';
-
-        // Check if the extracted CSS file exists in cache
-        if ($this->filesystem->exists($filePath)) {
-            // Add onload attributes to all stylesheet link elements in the HTML document
-            $this->addOnloadAttributesToStylesheetLinkElements($document);
-
-            // Add a link element for the critical CSS to the HTML document
-            $this->addCriticalCssLinkElement($document, $controllerName, $filenameIdentifier);
-
-            // Return the modified HTML document
-            return $html5->saveHTML($document);
-        }
-
         try {
+            // Create a new HTML5 object
+            $html5 = new HTML5();
+
+            // Load the raw HTML content into the HTML5 document
+            $document = $html5->loadHTML($rawHtml);
+
+            // Get the URLs of all stylesheets in the HTML document
+            $files = $this->getStylesheetUrls($document);
+
+            // Generate a unique identifier for the extracted CSS file
+            $filenameIdentifier = $this->getFileNameIdentifierFromList($files);
+
+            // Get the path to the extracted CSS file
+            $filePath = $this->cacheDir . $controllerName . '-' . $filenameIdentifier . '.css';
+
+            // Check if the extracted CSS file exists in cache
+            if ($this->filesystem->exists($filePath)) {
+                // Add onload attributes to all stylesheet link elements in the HTML document
+                $this->addOnloadAttributesToStylesheetLinkElements($document);
+
+                // Add a link element for the critical CSS to the HTML document
+                $this->addCriticalCssLinkElement($document, $controllerName, $filenameIdentifier);
+
+                // Return the modified HTML document
+                return $html5->saveHTML($document);
+            }
+
             // Extract the CSS rules for the above-the-fold content
             $cssFromHTMLExtractor = $this->extractCssFromHtml($document);
 
@@ -91,16 +124,25 @@ class CriticalCss
         } catch (\Exception $exception) {
             // Catch and log any exceptions that occur during processing
             error_log($exception->getMessage());
+
             return $rawHtml;
         }
     }
 
-    private function getStylesheetUrls($document): array
+    /**
+     * Returns an array of URLs for all stylesheet link elements in the given HTML document.
+     *
+     * @param \DOMDocument $document the HTML document to search for stylesheet link elements
+     *
+     * @return array returns an array of URLs for all stylesheet link elements in the given HTML document
+     */
+    private function getStylesheetUrls(\DOMDocument $document): array
     {
         $urls = [];
 
         // Loop through all 'link' tags in the HTML document
         foreach ($document->getElementsByTagName('link') as $linkTag) {
+            /** @var \DOMElement $linkTag */
             // Check if the current link tag is for a stylesheet
             if ($linkTag->getAttribute('rel') === 'stylesheet') {
                 // Get the URL of the current stylesheet
@@ -112,7 +154,14 @@ class CriticalCss
         return $urls;
     }
 
-    private function extractCssFromHtml($document): CssFromHTMLExtractor
+    /**
+     * Extracts the CSS rules for the above-the-fold content from the given HTML document.
+     *
+     * @param \DOMDocument $document the HTML document to extract the CSS rules from
+     *
+     * @return CssFromHTMLExtractor returns a CssFromHTMLExtractor object containing the extracted CSS rules
+     */
+    private function extractCssFromHtml(\DOMDocument $document): CssFromHTMLExtractor
     {
         /** @var CssFromHTMLExtractor $cssFromHTMLExtractor */
         // Create a new CssFromHTMLExtractor object
@@ -120,10 +169,10 @@ class CriticalCss
 
         // Loop through all 'link' tags in the HTML document
         foreach ($document->getElementsByTagName('link') as $linkTag) {
+            /** @var \DOMElement $linkTag */
 
             // Check if the current link tag is for a stylesheet
             if ($linkTag->getAttribute('rel') === 'stylesheet') {
-
                 // Get the URL of the current stylesheet
                 $tokenisedStylesheet = explode('?', $linkTag->getAttribute('href'));
                 $stylesheet = reset($tokenisedStylesheet);
@@ -146,6 +195,14 @@ class CriticalCss
         return $cssFromHTMLExtractor;
     }
 
+    /**
+     * Saves the given critical CSS to a file at the given path.
+     *
+     * @param string $criticalCss the critical CSS to save to a file
+     * @param string $filePath the path to the file to save the critical CSS to
+     *
+     * @return void
+     */
     private function saveCriticalCssToFile(string $criticalCss, string $filePath): void
     {
         // Add destinationPath as a comment to the beginning of the CSS
@@ -153,13 +210,20 @@ class CriticalCss
 
         // Minify the extracted CSS and save it to a file
         if (!$this->filesystem->exists($filePath)) {
-            //CssMinifier::minify($criticalCss, $filePath);
-            $minifier = new CssMinifier();
-            $minifier->minify($criticalCss, $filePath);
+            CssMinifier::minify($criticalCss, $filePath);
         }
     }
 
-    private function addCriticalCssLinkElement($document, string $controllerName, string $filenameIdentifier): void
+    /**
+     * Adds a link element for the critical CSS to the given HTML document.
+     *
+     * @param \DOMDocument $document the HTML document to add the link element to
+     * @param string $controllerName the name of the controller
+     * @param string $filenameIdentifier the unique identifier for the extracted CSS file
+     *
+     * @return void
+     */
+    private function addCriticalCssLinkElement(\DOMDocument $document, string $controllerName, string $filenameIdentifier): void
     {
         // Create the critical css link element
         $linkCritical = $document->createElement('link');
@@ -184,7 +248,14 @@ class CriticalCss
         }
     }
 
-    private function addOnloadAttributesToStylesheetLinkElements($document): void
+    /**
+     * Adds onload attributes to all stylesheet link elements in the given HTML document.
+     *
+     * @param \DOMDocument $document the HTML document to add the onload attributes to
+     *
+     * @return void
+     */
+    private function addOnloadAttributesToStylesheetLinkElements(\DOMDocument $document): void
     {
         // Find all the stylesheet link elements
         foreach ($document->getElementsByTagName('link') as $existingLink) {
@@ -198,6 +269,13 @@ class CriticalCss
         }
     }
 
+    /**
+     * Generates a unique identifier for a list of file URLs.
+     *
+     * @param array $files an array of file URLs
+     *
+     * @return string returns a unique identifier for the given list of file URLs
+     */
     private function getFileNameIdentifierFromList(array $files): string
     {
         return substr(sha1(implode('|', $files)), 0, 6);
