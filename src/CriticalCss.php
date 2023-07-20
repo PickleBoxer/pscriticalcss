@@ -228,7 +228,7 @@ class CriticalCss
         // Create the critical css link element
         $linkCritical = $document->createElement('link');
         $linkCritical->setAttribute('fetchpriority', 'high');
-        $linkCritical->setAttribute('href', __PS_BASE_URI__.'themes/'._THEME_NAME_.'/' . 'assets/cache/' . $controllerName . '-' . $filenameIdentifier . '.css');
+        $linkCritical->setAttribute('href', __PS_BASE_URI__ . 'themes/' . _THEME_NAME_ . '/assets/cache/' . $controllerName . '-' . $filenameIdentifier . '.css');
         $linkCritical->setAttribute('rel', 'stylesheet');
         $linkCritical->setAttribute('type', 'text/css');
         $linkCritical->setAttribute('media', 'all');
