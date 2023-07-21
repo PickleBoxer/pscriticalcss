@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>pscriticalcss</name>
+	<displayName><![CDATA[Critical CSS]]></displayName>
+	<version><![CDATA[1.0.0]]></version>
+	<description><![CDATA[Critical CSS module for PrestaShop optimizes website loading times]]></description>
+	<author><![CDATA[PickleBoxer]]></author>
+	<tab><![CDATA[content_management]]></tab>
+	<is_configurable>1</is_configurable>
+	<need_instance>1</need_instance>
+</module>
