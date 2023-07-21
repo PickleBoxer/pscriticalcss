@@ -20,23 +20,15 @@
 <div class="panel">
 	<h3><i class="icon icon-credit-card"></i> {l s='Critical CSS' mod='pscriticalcss'}</h3>
 	<p>
-		<strong>{l s='Here is my new generic module!' mod='pscriticalcss'}</strong><br />
-		{l s='Thanks to PrestaShop, now I have a great module.' mod='pscriticalcss'}<br />
-		{l s='I can configure it using the following configuration form.' mod='pscriticalcss'}
+		<strong>{l s='Welcome to the Critical CSS module for PrestaShop!' mod='pscriticalcss'}</strong><br />
+		{l s='This module automatically generates optimized CSS files for your store\'s front controllers, without requiring Node.js. These files can help improve your website\'s performance and speed.' mod='pscriticalcss'}<br />
 	</p>
 	<br />
 	<p>
-		{l s='This module will boost your sales!' mod='pscriticalcss'}
+		{l s='By using the Critical CSS module, you can provide a better user experience for your customers and potentially increase your sales.' mod='pscriticalcss'}
 	</p>
-</div>
-
-<div class="panel">
-	<h3><i class="icon icon-tags"></i> {l s='Documentation' mod='pscriticalcss'}</h3>
-	<p>
-		&raquo; {l s='You can get a PDF documentation to configure this module' mod='pscriticalcss'} :
-		<ul>
-			<li><a href="#" target="_blank">{l s='English' mod='pscriticalcss'}</a></li>
-			<li><a href="#" target="_blank">{l s='French' mod='pscriticalcss'}</a></li>
-		</ul>
-	</p>
+	<br />
+	<div class="alert alert-warning">
+        {l s='Please note that this module has only been tested on the Classic theme from PrestaShop. It may cause issues with custom themes.' mod='pscriticalcss'}
+    </div>
 </div>

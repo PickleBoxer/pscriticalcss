@@ -24,11 +24,19 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once __DIR__.'/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
+
+use PickleBoxer\PsCriticalCss\CriticalCss;
+use Symfony\Component\Filesystem\Filesystem;
 
 class Pscriticalcss extends Module
 {
     protected $config_form = false;
+
+    /**
+     * @var object CriticalCss
+     */
+    protected $criticalCss;
 
     public function __construct()
     {
@@ -49,6 +57,11 @@ class Pscriticalcss extends Module
         $this->description = $this->l('Critical CSS module for PrestaShop optimizes website loading times');
 
         $this->ps_versions_compliancy = ['min' => '1.7', 'max' => _PS_VERSION_];
+
+        $this->criticalCss = new CriticalCss(
+            _PS_THEME_DIR_ . 'assets/cache/',
+            new Filesystem()
+        );
     }
 
     /**
@@ -60,8 +73,8 @@ class Pscriticalcss extends Module
         Configuration::updateValue('PSCRITICALCSS_LIVE_MODE', false);
 
         return parent::install()
-            && $this->registerHook('header')
-            && $this->registerHook('displayBackOfficeHeader');
+            && $this->registerHook('displayBackOfficeHeader')
+            && $this->registerHook('actionOutputHTMLBefore');
     }
 
     public function uninstall()
@@ -132,10 +145,10 @@ class Pscriticalcss extends Module
                 'input' => [
                     [
                         'type' => 'switch',
-                        'label' => $this->l('Live mode'),
+                        'label' => $this->l('Critical CSS'),
                         'name' => 'PSCRITICALCSS_LIVE_MODE',
                         'is_bool' => true,
-                        'desc' => $this->l('Use this module in live mode'),
+                        'desc' => $this->l('Enable or Disable Critical CSS'),
                         'values' => [
                             [
                                 'id' => 'active_on',
@@ -148,19 +161,6 @@ class Pscriticalcss extends Module
                                 'label' => $this->l('Disabled'),
                             ],
                         ],
-                    ],
-                    [
-                        'col' => 3,
-                        'type' => 'text',
-                        'prefix' => '<i class="icon icon-envelope"></i>',
-                        'desc' => $this->l('Enter a valid email address'),
-                        'name' => 'PSCRITICALCSS_ACCOUNT_EMAIL',
-                        'label' => $this->l('Email'),
-                    ],
-                    [
-                        'type' => 'password',
-                        'name' => 'PSCRITICALCSS_ACCOUNT_PASSWORD',
-                        'label' => $this->l('Password'),
                     ],
                 ],
                 'submit' => [
@@ -177,8 +177,6 @@ class Pscriticalcss extends Module
     {
         return [
             'PSCRITICALCSS_LIVE_MODE' => Configuration::get('PSCRITICALCSS_LIVE_MODE'),
-            'PSCRITICALCSS_ACCOUNT_EMAIL' => Configuration::get('PSCRITICALCSS_ACCOUNT_EMAIL'),
-            'PSCRITICALCSS_ACCOUNT_PASSWORD' => Configuration::get('PSCRITICALCSS_ACCOUNT_PASSWORD'),
         ];
     }
 
@@ -206,11 +204,16 @@ class Pscriticalcss extends Module
     }
 
     /**
-     * Add the CSS & JavaScript files you want to be added on the FO.
+     * This function is a hook that runs before the HTML output is generated on the front-end of the website.
+     * It takes in a single parameter $params which is an array of variables that can be modified before the final HTML output is generated.
      */
-    public function hookHeader()
+    public function hookActionOutputHTMLBefore($params)
     {
-        $this->context->controller->addJS($this->_path . '/views/js/front.js');
-        $this->context->controller->addCSS($this->_path . '/views/css/front.css');
+        if (Configuration::get('PSCRITICALCSS_LIVE_MODE')) {
+            // Get the class name of the current controller
+            $controllerName = $this->context->controller->php_self;
+
+            $params['html'] = $this->criticalCss->process($params['html'], $controllerName);
+        }
     }
 }
